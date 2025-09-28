@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suraksha - Disaster Management</title>
+    <style>
+        /* --- Basic Styles --- */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f0f2f5;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin: 20px;
+        }
+
+        header {
+            background-color: #0056b3;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 1.5em;
+        }
+
+        /* --- Main Interface Layout --- */
+        .main-interface {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        .panel {
+            flex: 1;
+            min-width: 300px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .alert-panel h3, .map-panel h3 {
+            margin-top: 0;
+            color: #0056b3;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        
+        /* --- Alert Panel --- */
+        #alert-content {
+            font-size: 1.1em;
+            font-weight: bold;
+            text-align: center;
+            padding: 20px;
+            border-radius: 6px;
+        }
+        
+        .alert-red {
+            background-color: #ffcccc;
+            color: #cc0000;
+            border: 1px solid #cc0000;
+        }
+        .alert-yellow {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #856404;
+        }
+        .alert-green {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #155724;
+        }
+        
+        #alarm-controls {
+            display: none; /* Hidden by default */
+            margin-top: 15px;
+            text-align: center;
+        }
+        
+        #stop-alarm-btn {
+            background-color: #dc3545;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+        }
+        #stop-alarm-btn:hover {
+            background-color: #c82333;
+        }
+
+
+        /* --- Map Panel --- */
+        .map-display {
+            height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5em;
+            font-weight: bold;
+            border-radius: 6px;
+            text-shadow: 1px 1px 3px #000;
+        }
+        
+        .zone-red { background-color: #dc3545; }
+        .zone-yellow { background-color: #ffc107; }
+        .zone-green { background-color: #28a745; }
+
+        #user-info {
+            margin-top: 15px;
+            font-size: 0.9em;
+            color: #555;
+        }
+
+        /* --- Module 2: Advisory & SOS --- */
+        .module2 {
+            padding: 20px;
+            background-color: #f8f9fa;
+            text-align: center;
+        }
+
+        .sos-btn {
+            background-color: #e60000;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            margin: 10px;
+        }
+        .sos-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .advisory-btn {
+            background-color: #17a2b8;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1em;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        
+        /* --- Red Zone Modal --- */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 10px;
+        }
+        .close-btn {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .modal-content h4 { color: #0056b3; }
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            overflow: hidden;
+            max-width: 100%;
+            background: #000;
+            margin-top: 15px;
+        }
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* --- Simulation Controls for Demo --- */
+        .simulation-controls {
+            padding: 20px;
+            text-align: center;
+            background: #e9ecef;
+            margin-top: 20px;
+            border-radius: 8px;
+        }
+        .simulation-controls button {
+            padding: 10px 15px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .sim-red { background-color: #dc3545; color: white; }
+        .sim-yellow { background-color: #ffc107; color: black; }
+        .sim-green { background-color: #28a745; color: white; }
+        .sim-gov { background-color: #007bff; color: white; }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            SURAKSHA - Disaster Management
+        </header>
+
+        <div class="main-interface">
+            <div class="panel alert-panel">
+                <h3>🚨 Alerts</h3>
+                <div id="alert-content">
+                    You are currently in a safe zone.
+                </div>
+                <div id="alarm-controls">
+                    <button id="stop-alarm-btn">STOP ALARM</button>
+                </div>
+            </div>
+
+            <div class="panel map-panel">
+                <h3>🗺️ Your Zone Status</h3>
+                <div class="map-display zone-green" id="map-display">
+                    GREEN ZONE
+                </div>
+                <div id="user-info">
+                    <p><strong>Status:</strong> Safe</p>
+                    <p><strong>Location:</strong> <span id="location-text">Fetching...</span></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="module2">
+            <button class="advisory-btn" id="advisory-btn">Govt. Advisories & Guidelines</button>
+            <button class="sos-btn" id="sos-btn">🆘 SOS</button>
+        </div>
+    </div>
+    
+    <div id="red-zone-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="close-modal-btn">&times;</span>
+            <h2>EMERGENCY - RED ZONE ALERT</h2>
+            
+            <h4>🇮🇳 Government of India Advisory:</h4>
+            <p>This is a high-alert area. Evacuate immediately if instructed. Stay indoors, away from windows. Follow instructions from local authorities without delay.</p>
+            
+            <h4>🤖 AI Generated Response:</h4>
+            <p>1. Find a sturdy shelter. <br>2. Prepare an emergency kit with water, food, and first-aid. <br>3. Do not use elevators. <br>4. Stay informed through official channels.</p>
+            
+            <h4>📺 Video Solution:</h4>
+            <div class="video-container">
+                <iframe src="https://www.youtube.com/embed/Jyv8_3GkMZw" title="Flood Safety" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+    
+    <div class="simulation-controls">
+        <h3>App Demonstration Controls</h3>
+        <p>Click these buttons to simulate different disaster scenarios.</p>
+        <button class="sim-green" onclick="simulateZone('green')">Simulate Green Zone</button>
+        <button class="sim-yellow" onclick="simulateZone('yellow')">Simulate Yellow Zone</button>
+        <button class="sim-red" onclick="simulateZone('red')">Simulate Red Zone</button>
+        <button class="sim-gov" onclick="simulateGovtAlert()">Simulate Govt. Emergency Alert</button>
+    </div>
+
+    <audio id="alarm-sound" src="https://www.soundjay.com/buttons/sounds/beep-01a.mp3" loop></audio>
+
+    <script>
+        // --- DOM Elements ---
+        const alertContent = document.getElementById('alert-content');
+        const mapDisplay = document.getElementById('map-display');
+        const userInfoStatus = document.querySelector('#user-info p:nth-child(1) strong');
+        const locationText = document.getElementById('location-text');
+        const alarmControls = document.getElementById('alarm-controls');
+        const stopAlarmBtn = document.getElementById('stop-alarm-btn');
+        const sosBtn = document.getElementById('sos-btn');
+        const advisoryBtn = document.getElementById('advisory-btn');
+        const redZoneModal = document.getElementById('red-zone-modal');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const alarmSound = document.getElementById('alarm-sound');
+
+        let userLocation = { lat: 'Not available', lon: 'Not available' };
+
+        // --- Get User's Location ---
+        window.onload = () => {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    userLocation.lat = position.coords.latitude.toFixed(4);
+                    userLocation.lon = position.coords.longitude.toFixed(4);
+                    locationText.textContent = `Lat: ${userLocation.lat}, Lon: ${userLocation.lon}`;
+                }, () => {
+                    locationText.textContent = "Location access denied.";
+                });
+            } else {
+                locationText.textContent = "Geolocation is not supported by this browser.";
+            }
+        };
+
+        // --- Main Simulation Function ---
+        function simulateZone(zone) {
+            // Reset everything first
+            stopAlarm();
+            alertContent.className = '';
+            mapDisplay.className = 'map-display';
+            redZoneModal.style.display = 'none';
+
+            if (zone === 'green') {
+                alertContent.textContent = "You are currently in a safe zone.";
+                alertContent.classList.add('alert-green');
+                mapDisplay.classList.add('zone-green');
+                mapDisplay.textContent = 'GREEN ZONE';
+                userInfoStatus.textContent = 'Status: Safe';
+            } 
+            else if (zone === 'yellow') {
+                alertContent.textContent = "Alert: A potential disaster is predicted in your area. Stay updated and be prepared.";
+                alertContent.classList.add('alert-yellow');
+                mapDisplay.classList.add('zone-yellow');
+                mapDisplay.textContent = 'YELLOW ZONE';
+                userInfoStatus.textContent = 'Status: Caution';
+                // Send a simple notification
+                sendNotification("Yellow Zone Alert", "A potential disaster is predicted. Stay cautious.");
+            } 
+            else if (zone === 'red') {
+                alertContent.innerHTML = "DANGER: You are in a high-risk red zone! <br> Evacuate if necessary. Follow official advice immediately.";
+                alertContent.classList.add('alert-red');
+                mapDisplay.classList.add('zone-red');
+                mapDisplay.textContent = 'RED ZONE';
+                userInfoStatus.textContent = 'Status: Danger';
+                startAlarm();
+                redZoneModal.style.display = 'block'; // Show the modal with advisories
+            }
+        }
+        
+        // --- Alarm and Notification Functions ---
+        function startAlarm() {
+            alarmControls.style.display = 'block';
+            alarmSound.play();
+            // Vibrate for 2 seconds, pause for 1, repeat
+            if (navigator.vibrate) {
+                navigator.vibrate([2000, 1000, 2000, 1000]); 
+            }
+        }
+        
+        function stopAlarm() {
+            alarmControls.style.display = 'none';
+            alarmSound.pause();
+            alarmSound.currentTime = 0; // Reset audio
+            if (navigator.vibrate) {
+                navigator.vibrate(0); // Stop vibration
+            }
+        }
+
+        function sendNotification(title, body) {
+            if (!("Notification" in window)) {
+                alert("This browser does not support desktop notification");
+            } else if (Notification.permission === "granted") {
+                new Notification(title, { body: body, vibrate: [200, 100, 200] });
+            } else if (Notification.permission !== "denied") {
+                Notification.requestPermission().then(permission => {
+                    if (permission === "granted") {
+                        new Notification(title, { body: body, vibrate: [200, 100, 200] });
+                    }
+                });
+            }
+        }
+        
+        // --- Government Alert Simulation ---
+        function simulateGovtAlert() {
+            alert("EMERGENCY ALERT FROM GOVT. OF INDIA:\n\nMajor flood warning issued for your district. Please check the app for details and follow safety guidelines immediately.");
+            if (navigator.vibrate) {
+                navigator.vibrate([500, 200, 500, 200, 500]); // Distinct vibration pattern
+            }
+            // You can also play a special sound here
+            sendNotification("GOVT. OF INDIA ALERT", "Major flood warning issued. Take immediate precautions.");
+        }
+
+
+        // --- Module 2 Functions ---
+        function sendSOS() {
+            const userName = "User Name"; // In a real app, this would be fetched from a profile
+            const userAddress = "User's Address, City"; // Fetched from profile or reverse geocoding
+            const emergencyContacts = ["+919876543210", "+918765432109"]; // Pre-selected contacts
+
+            const message = `🆘 EMERGENCY SOS 🆘
+            Name: ${userName}
+            Location: Lat: ${userLocation.lat}, Lon: ${userLocation.lon}
+            Address: ${userAddress}
+            NEEDS IMMEDIATE HELP!`;
+            
+            // This is a simulation. In a real app, you would make API calls here.
+            alert(`--- SOS TRIGGERED ---\nThe following message has been sent to the nearest police station, disaster management team, and your emergency contacts: \n\n${message}`);
+        }
+        
+        // --- Event Listeners ---
+        stopAlarmBtn.addEventListener('click', stopAlarm);
+        sosBtn.addEventListener('click', sendSOS);
+        
+        advisoryBtn.addEventListener('click', () => {
+            alert("Showing Government Advisories...\n\n- Stay Informed: Listen to radio/TV for updates.\n- Emergency Kit: Keep a kit with essentials ready.\n- Evacuation Routes: Know your local evacuation routes.\n\n(This section would contain detailed guidelines from NDMA).");
+        });
+        
+        closeModalBtn.addEventListener('click', () => {
+            redZoneModal.style.display = 'none';
+        });
+
+        // Close modal if user clicks outside of it
+        window.addEventListener('click', (event) => {
+            if (event.target == redZoneModal) {
+                redZoneModal.style.display = 'none';
+            }
+        });
+        
+    </script>
+</body>
+</html>
